@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
-  ScrollView,
   TextInput,
   Pressable,
   TouchableWithoutFeedback,
@@ -27,11 +26,6 @@ export default function RegistrationScreen() {
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const keyboardHide = () => {
-    setIsShowKeyBoard(false);
-    Keyboard.dismiss();
-  };
 
   const loginHandler = (value) => setLogin(value);
 
@@ -52,11 +46,11 @@ export default function RegistrationScreen() {
   };
 
   const onSubmit = () => {
-    keyboardHide();
-
     if (login === "" || email === "" || password === "") {
       return Alert.alert("Заповніть всі поля");
     }
+    setIsShowKeyBoard(false);
+    Keyboard.dismiss();
 
     const data = { login, email, password };
     console.log(data);
@@ -66,20 +60,12 @@ export default function RegistrationScreen() {
     setPassword("");
   };
 
-  const togglePassVisibility = () => {
-    if (isPassVisible) {
-      setIsPassVisible(false);
-    } else {
-      setIsPassVisible(true);
-    }
-  };
-
   return (
     <ImageBackground
       style={styles.image}
       source={require("../assets/images/background-img.jpg")}
     >
-      <TouchableWithoutFeedback onPress={keyboardHide}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
@@ -91,7 +77,7 @@ export default function RegistrationScreen() {
               <AntDesign name="pluscircleo" size={26} style={styles.icon} />
             </Pressable>
           </View>
-          <ScrollView
+          <View
             style={{
               ...styles.form,
               marginTop: isShowKeyBoard ? 104 : 220,
@@ -122,37 +108,33 @@ export default function RegistrationScreen() {
               onFocus={() => handleInputFocus("email")}
               onBlur={() => handleInputBlur("email")}
             />
-            <TextInput
-              value={password}
-              onChangeText={passwordHandler}
-              placeholder="Пароль"
-              secureTextEntry={isPassVisible}
-              style={
-                isFocused.password
-                  ? [
-                      styles.input,
-                      { borderColor: "#FF6C00" },
-                      { marginBottom: 0 },
-                    ]
-                  : [styles.input, { marginBottom: 0 }]
-              }
-              onFocus={() => handleInputFocus("password")}
-              onBlur={() => handleInputBlur("password")}
-            />
-            <Pressable onPress={togglePassVisibility}>
-              <Text
-                style={{
-                  ...styles.subscribeText,
-                  position: "absolute",
-                  top: -37,
-                  right: 25,
-                  zIndex: 10,
-                }}
+            <View>
+              <TextInput
+                value={password}
+                onChangeText={passwordHandler}
+                placeholder="Пароль"
+                secureTextEntry={isPassVisible}
+                style={
+                  isFocused.password
+                    ? [
+                        styles.input,
+                        { borderColor: "#FF6C00" },
+                        { marginBottom: 0 },
+                      ]
+                    : [styles.input, { marginBottom: 0 }]
+                }
+                onFocus={() => handleInputFocus("password")}
+                onBlur={() => handleInputBlur("password")}
+              />
+              <Pressable
+                onPress={() => setIsPassVisible(!isPassVisible)}
+                style={{ position: "absolute", top: 12, right: 20 }}
               >
-                {isPassVisible ? "Показати" : "Сховати"}
-              </Text>
-            </Pressable>
-
+                <Text style={styles.subscribeText}>
+                  {isPassVisible ? "Показати" : "Сховати"}
+                </Text>
+              </Pressable>
+            </View>
             <Pressable onPress={onSubmit} style={styles.button}>
               <Text style={styles.text}>Зареєструватись</Text>
             </Pressable>
@@ -162,7 +144,7 @@ export default function RegistrationScreen() {
                 <Text style={styles.subscribeText}>Увійти</Text>
               </Pressable>
             </View>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </ImageBackground>
@@ -192,7 +174,6 @@ const styles = StyleSheet.create({
     color: "#FF6C00",
   },
   form: {
-    position: "relative",
     backgroundColor: "#FFFFFF",
     lineHeight: 1.19,
     paddingTop: 92,
