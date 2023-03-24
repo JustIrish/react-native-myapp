@@ -4,16 +4,17 @@ import {
   Text,
   View,
   Alert,
-  ImageBackground,
   KeyboardAvoidingView,
   Keyboard,
   Platform,
   TextInput,
+  TouchableOpacity,
   Pressable,
   TouchableWithoutFeedback,
 } from "react-native";
+import { ImageBg } from "../../components/ImageBackground";
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
   const [isFocused, setIsFocused] = useState({
     email: false,
@@ -54,10 +55,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <ImageBackground
-      style={styles.image}
-      source={require("../assets/images/background-img.jpg")}
-    >
+    <ImageBg>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -108,33 +106,28 @@ export default function LoginScreen() {
                 </Text>
               </Pressable>
             </View>
-            <Pressable onPress={onSubmit} style={styles.button}>
+            <TouchableOpacity onPress={onSubmit} style={styles.button}>
               <Text style={styles.text}>Увійти</Text>
-            </Pressable>
+            </TouchableOpacity>
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Немає акаунту? </Text>
-              <Pressable>
+              <Pressable onPress={() => navigation.navigate("Registration")}>
                 <Text style={styles.subscribeText}>Зареєструватись</Text>
               </Pressable>
             </View>
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
-    </ImageBackground>
+    </ImageBg>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "flex-end",
-  },
   form: {
     position: "relative",
     backgroundColor: "#FFFFFF",
     lineHeight: 1.19,
-    marginTop: "auto",
+    // marginTop: "auto",
     paddingTop: 32,
     padding: 16,
     paddingBottom: 144,

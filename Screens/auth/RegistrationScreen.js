@@ -4,7 +4,6 @@ import {
   Text,
   View,
   Alert,
-  ImageBackground,
   Image,
   KeyboardAvoidingView,
   Keyboard,
@@ -14,8 +13,9 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import { ImageBg } from "../../components/ImageBackground";
 
-export default function RegistrationScreen() {
+export default function RegistrationScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
   const [isFocused, setIsFocused] = useState({
     login: false,
@@ -61,10 +61,7 @@ export default function RegistrationScreen() {
   };
 
   return (
-    <ImageBackground
-      style={styles.image}
-      source={require("../assets/images/background-img.jpg")}
-    >
+    <ImageBg>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -140,23 +137,18 @@ export default function RegistrationScreen() {
             </Pressable>
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Вже є акаунт? </Text>
-              <Pressable>
+              <Pressable onPress={() => navigation.navigate("Login")}>
                 <Text style={styles.subscribeText}>Увійти</Text>
               </Pressable>
             </View>
           </View>
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
-    </ImageBackground>
+    </ImageBg>
   );
 }
 
 const styles = StyleSheet.create({
-  image: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "flex-end",
-  },
   avatarWrap: {
     position: "absolute",
     top: 0,
@@ -176,6 +168,7 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: "#FFFFFF",
     lineHeight: 1.19,
+    // marginTop:"auto",
     paddingTop: 92,
     paddingHorizontal: 16,
     paddingBottom: 45,
