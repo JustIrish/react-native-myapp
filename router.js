@@ -1,16 +1,12 @@
 import React from "react";
 
 import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import Registration from "./Screens/auth/RegistrationScreen";
 import Login from "./Screens/auth/LoginScreen";
-import PostsScreen from "./Screens/mainScreens/PostsScreen";
-import CreatePostsScreen from "./Screens/mainScreens/CreatePostsScreen";
-import ProfileScreen from "./Screens/mainScreens/ProfileScreen";
+import Home from "./Screens/mainScreens/Home";
 
 const AuthStack = createStackNavigator();
-const MainTab = createBottomTabNavigator();
 
 const useRoute = (isAuth) => {
   if (!isAuth) {
@@ -30,23 +26,13 @@ const useRoute = (isAuth) => {
     );
   }
   return (
-    <MainTab.Navigator>
-      <MainTab.Screen
+    <AuthStack.Navigator>
+      <AuthStack.Screen
         options={{ headerShown: false }}
-        name="Posts"
-        component={PostsScreen}
+        name="Home"
+        component={Home}
       />
-      <MainTab.Screen
-        options={{ headerShown: false }}
-        name="Create"
-        component={CreatePostsScreen}
-      />
-      <MainTab.Screen
-        options={{ headerShown: false }}
-        name="Profile"
-        component={ProfileScreen}
-      />
-    </MainTab.Navigator>
+    </AuthStack.Navigator>
   );
 };
 

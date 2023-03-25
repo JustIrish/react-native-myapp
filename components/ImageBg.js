@@ -1,7 +1,7 @@
 import React from "react";
 import { ImageBackground, StyleSheet } from "react-native";
 
-export const ImageBg = ({ children }) => {
+const ImageBg = ({ children }) => {
   return (
     <ImageBackground
       style={styles.image}
@@ -19,3 +19,5 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
 });
+
+export default ImageBg;

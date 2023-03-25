@@ -13,7 +13,8 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { ImageBg } from "../../components/ImageBackground";
+import ImageBg from "../../components/ImageBg";
+import Button from "../../components/Button";
 
 export default function RegistrationScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -46,7 +47,7 @@ export default function RegistrationScreen({ navigation }) {
   };
 
   const onSubmit = () => {
-    if (login === "" || email === "" || password === "") {
+    if (login.trim() === "" || email.trim() === "" || password.trim() === "") {
       return Alert.alert("Заповніть всі поля");
     }
     setIsShowKeyBoard(false);
@@ -132,9 +133,7 @@ export default function RegistrationScreen({ navigation }) {
                 </Text>
               </Pressable>
             </View>
-            <Pressable onPress={onSubmit} style={styles.button}>
-              <Text style={styles.text}>Зареєструватись</Text>
-            </Pressable>
+            <Button onSubmit={onSubmit} title={"Зареєструватись"} />
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Вже є акаунт? </Text>
               <Pressable onPress={() => navigation.navigate("Login")}>
@@ -168,7 +167,6 @@ const styles = StyleSheet.create({
   form: {
     backgroundColor: "#FFFFFF",
     lineHeight: 1.19,
-    // marginTop:"auto",
     paddingTop: 92,
     paddingHorizontal: 16,
     paddingBottom: 45,
@@ -194,20 +192,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#E8E8E8",
-  },
-  button: {
-    backgroundColor: "#FF6C00",
-    borderRadius: 32,
-    padding: 16,
-    marginVertical: 16,
-    marginTop: 43,
-    justifyContent: "center",
-  },
-  text: {
-    fontFamily: "Roboto400",
-    fontSize: 16,
-    color: "#FFFFFF",
-    textAlign: "center",
   },
   subscribe: {
     flexDirection: "row",

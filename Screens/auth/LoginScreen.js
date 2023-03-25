@@ -8,11 +8,11 @@ import {
   Keyboard,
   Platform,
   TextInput,
-  TouchableOpacity,
   Pressable,
   TouchableWithoutFeedback,
 } from "react-native";
-import { ImageBg } from "../../components/ImageBackground";
+import ImageBg from "../../components/ImageBg";
+import Button from "../../components/Button";
 
 export default function LoginScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   const onSubmit = () => {
-    if (email === "" || password === "") {
+    if (email.trim() === "" || password.trim() === "") {
       return Alert.alert("Заповніть всі поля");
     }
     setIsShowKeyBoard(false);
@@ -106,9 +106,7 @@ export default function LoginScreen({ navigation }) {
                 </Text>
               </Pressable>
             </View>
-            <TouchableOpacity onPress={onSubmit} style={styles.button}>
-              <Text style={styles.text}>Увійти</Text>
-            </TouchableOpacity>
+            <Button onSubmit={onSubmit} title={"Увійти"} />
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Немає акаунту? </Text>
               <Pressable onPress={() => navigation.navigate("Registration")}>
@@ -127,7 +125,6 @@ const styles = StyleSheet.create({
     position: "relative",
     backgroundColor: "#FFFFFF",
     lineHeight: 1.19,
-    // marginTop: "auto",
     paddingTop: 32,
     padding: 16,
     paddingBottom: 144,
@@ -152,20 +149,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#E8E8E8",
-  },
-  button: {
-    backgroundColor: "#FF6C00",
-    borderRadius: 100,
-    padding: 16,
-    marginVertical: 16,
-    marginTop: 43,
-    justifyContent: "center",
-  },
-  text: {
-    fontFamily: "Roboto400",
-    fontSize: 16,
-    color: "#FFFFFF",
-    textAlign: "center",
   },
   subscribe: {
     flexDirection: "row",
