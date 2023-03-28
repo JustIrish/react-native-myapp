@@ -117,9 +117,9 @@ export default function RegistrationScreen({ navigation }) {
                     ? [
                         styles.input,
                         { borderColor: "#FF6C00" },
-                        { marginBottom: 0 },
+                        { marginBottom: 43 },
                       ]
-                    : [styles.input, { marginBottom: 0 }]
+                    : [styles.input, { marginBottom: 43 }]
                 }
                 onFocus={() => handleInputFocus("password")}
                 onBlur={() => handleInputBlur("password")}
@@ -196,6 +196,7 @@ const styles = StyleSheet.create({
   subscribe: {
     flexDirection: "row",
     alignSelf: "center",
+    marginTop: 16,
   },
   subscribeText: {
     fontFamily: "Roboto400",
