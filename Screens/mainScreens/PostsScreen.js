@@ -1,7 +1,14 @@
-import React from "react";
-import { View, Image, Text, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Image, Text, StyleSheet, FlatList } from "react-native";
+import PostItem from "../../components/PostItem";
 
-const PostsScreen = () => {
+const PostsScreen = ({ navigation, route }) => {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    if (route.params) setPosts((prevState) => [route.params, ...prevState]);
+  }, [route.params]);
+
   return (
     <View style={styles.container}>
       <View style={styles.avatar}>
@@ -14,6 +21,19 @@ const PostsScreen = () => {
           <Text style={styles.email}>email</Text>
         </View>
       </View>
+      <FlatList
+        data={posts}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item }) => (
+          <PostItem
+            navigation={navigation}
+            photo={item.photo}
+            title={item.photoTitle}
+            location={item.location}
+            locationName={item.locationName}
+          />
+        )}
+      />
     </View>
   );
 };
@@ -22,13 +42,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingHorizontal: 16,
     overflow: "scroll",
   },
   avatar: {
-    marginTop: 16,
-    padding: 16,
+    paddingVertical: 32,
     flexDirection: "row",
-    overflow: "scroll",
   },
   image: {
     width: 60,
