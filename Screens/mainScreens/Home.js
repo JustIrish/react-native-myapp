@@ -57,13 +57,14 @@ const Home = ({ navigation, route }) => {
       />
       <MainTab.Screen
         options={{
+          tabBarStyle: { display: "none" },
           tabBarIcon: ({ focused, size, color }) => (
             <View style={focused && styles.activeBtn}>
               <Feather name="plus" size={size} color={color} />
             </View>
           ),
           headerLeft: () => (
-            <Pressable>
+            <Pressable onPress={() => navigation.navigate("Публікації")}>
               <Feather
                 name="arrow-left"
                 size={24}
