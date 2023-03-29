@@ -61,6 +61,7 @@ const CreatePostsScreen = ({ navigation }) => {
 
   const deletePhoto = () => {
     setPhoto("");
+    Keyboard.dismiss;
   };
 
   return (
