@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -15,6 +16,7 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
+import { register } from "../../redux/auth/authOperations";
 
 export default function RegistrationScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -27,6 +29,9 @@ export default function RegistrationScreen({ navigation }) {
   const [login, setLogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [avatar, setAvatar] = useState(null);
+
+  const dispatch = useDispatch();
 
   const loginHandler = (value) => setLogin(value);
 
@@ -46,15 +51,14 @@ export default function RegistrationScreen({ navigation }) {
     });
   };
 
-  const onSubmit = () => {
+  const handleSubmit = () => {
     if (login.trim() === "" || email.trim() === "" || password.trim() === "") {
       return Alert.alert("Заповніть всі поля");
     }
     setIsShowKeyBoard(false);
     Keyboard.dismiss();
 
-    const data = { login, email, password };
-    console.log(data);
+    dispatch(register({ login, email, password }));
 
     setLogin("");
     setEmail("");
@@ -133,7 +137,7 @@ export default function RegistrationScreen({ navigation }) {
                 </Text>
               </Pressable>
             </View>
-            <Button onSubmit={onSubmit} title={"Зареєструватись"} />
+            <Button onSubmit={handleSubmit} title={"Зареєструватись"} />
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Вже є акаунт? </Text>
               <Pressable onPress={() => navigation.navigate("Login")}>

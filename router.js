@@ -1,7 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 
 import { createStackNavigator } from "@react-navigation/stack";
+import { onAuthStateChanged } from "firebase/auth";
 
+import { auth } from "./firebase/config";
+import { refreshUser } from "./redux/auth/authSlice";
+import { selectIsAuth } from "./redux/auth/authSelectors";
 import Registration from "./Screens/auth/RegistrationScreen";
 import Login from "./Screens/auth/LoginScreen";
 import Home from "./Screens/mainScreens/Home";
@@ -10,7 +15,29 @@ import CommentsScreen from "./Screens/mainScreens/CommentsScreen";
 
 const AuthStack = createStackNavigator();
 
-const useRoute = (isAuth) => {
+const Routing = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const { displayName, email, uid, accessToken } = user;
+        dispatch(
+          refreshUser({
+            name: displayName,
+            email: email,
+            id: uid,
+            token: accessToken,
+          })
+        );
+      } else {
+        console.log("User is signed out");
+      }
+    });
+  }, []);
+
+  const isAuth = useSelector(selectIsAuth);
+
   if (!isAuth) {
     return (
       <AuthStack.Navigator>
@@ -28,9 +55,10 @@ const useRoute = (isAuth) => {
     );
   }
   return (
-    <AuthStack.Navigator screenOptions={{
-      headerTitleAlign: "center",
-    headerStyle: {
+    <AuthStack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+        headerStyle: {
           shadowColor: "rgba(0, 0, 0, 0.5)",
           shadowOffset: { width: 0, height: 0.5 },
           shadowRadius: 1.35914,
@@ -40,7 +68,9 @@ const useRoute = (isAuth) => {
           fontFamily: "Roboto500",
           fontSize: 17,
         },
-        headerTintColor: "#212121",}}>
+        headerTintColor: "#212121",
+      }}
+    >
       <AuthStack.Screen
         options={{ headerShown: false }}
         name="Home"
@@ -60,4 +90,4 @@ const useRoute = (isAuth) => {
   );
 };
 
-export default useRoute;
+export default Routing;

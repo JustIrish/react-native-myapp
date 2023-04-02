@@ -2,10 +2,19 @@ import React from "react";
 import { View, Image, Text, Pressable, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+
+import { logOut } from "../../redux/auth/authOperations";
 
 import ImageBg from "../../components/ImageBg";
 
 const ProfileScreen = () => {
+  const dispatch = useDispatch();
+
+  const HandlerLogOut = () => {
+    dispatch(logOut())
+  };
+
   return (
     <ImageBg>
       <View style={styles.conteiner}>
@@ -18,12 +27,13 @@ const ProfileScreen = () => {
             <AntDesign name="closecircleo" size={26} color="#E8E8E8" />
           </Pressable>
         </View>
-        <Feather
-          name="log-out"
-          size={24}
-          color="#BDBDBD"
+        <Pressable
           style={{ position: "absolute", top: 22, right: 16 }}
-        />
+          onPress={HandlerLogOut}
+        >
+          <Feather name="log-out" size={24} color="#BDBDBD" />
+        </Pressable>
+
         <Text></Text>
       </View>
     </ImageBg>

@@ -2,7 +2,9 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
 import { View, StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import { useDispatch } from "react-redux";
 
+import { logOut } from "../../redux/auth/authOperations";
 import PostsScreen from "./PostsScreen";
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
@@ -10,6 +12,8 @@ import ProfileScreen from "./ProfileScreen";
 const MainTab = createBottomTabNavigator();
 
 const Home = ({ navigation, route }) => {
+  const dispatch = useDispatch();
+
   return (
     <MainTab.Navigator
       // initialRouteName="Публікації"
@@ -42,7 +46,7 @@ const Home = ({ navigation, route }) => {
             </View>
           ),
           headerRight: () => (
-            <Pressable>
+            <Pressable onPress={()=>{dispatch(logOut())}}>
               <Feather
                 name="log-out"
                 size={24}

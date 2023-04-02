@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -13,6 +14,7 @@ import {
 } from "react-native";
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
+import { logIn } from "../../redux/auth/authOperations";
 
 export default function LoginScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -23,6 +25,8 @@ export default function LoginScreen({ navigation }) {
   const [isPassVisible, setIsPassVisible] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const dispatch = useDispatch();
 
   const emailHandler = (value) => setEmail(value);
 
@@ -47,8 +51,7 @@ export default function LoginScreen({ navigation }) {
     setIsShowKeyBoard(false);
     Keyboard.dismiss();
 
-    const data = { email, password };
-    console.log(data);
+    dispatch(logIn({ email, password }));
 
     setEmail("");
     setPassword("");
