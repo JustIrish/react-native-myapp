@@ -2,7 +2,20 @@ import React, { useEffect, useState } from "react";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
 import { EvilIcons } from "@expo/vector-icons";
 
-const PostItem = ({ navigation, photo, title, location, locationName }) => {
+const PostItem = ({
+  navigation,
+  photo,
+  title,
+  id,
+  userId,
+  location,
+  locationName,
+}) => {
+  // console.log(navigation, photo, title, location, locationName);
+
+  const [like, setLike] = useState(0);
+  const [comment, setComment] = useState(0);
+
   return (
     <View>
       <Image source={{ uri: photo }} style={styles.photo} />
@@ -11,7 +24,11 @@ const PostItem = ({ navigation, photo, title, location, locationName }) => {
         <View style={styles.wrap}>
           <Pressable
             onPress={() => {
-              navigation.navigate("Comments", { photo });
+              navigation.navigate("Comments", {
+                photo,
+                postId: id,
+                autorPostId: userId,
+              });
             }}
           >
             <EvilIcons name="comment" size={24} color="#BDBDBD" />
@@ -33,8 +50,8 @@ const PostItem = ({ navigation, photo, title, location, locationName }) => {
             }}
           >
             <EvilIcons name="location" size={24} color="#BDBDBD" />
+            <Text style={styles.descText}>{locationName}</Text>
           </Pressable>
-          <Text style={styles.descText}>{locationName}</Text>
         </View>
       </View>
     </View>

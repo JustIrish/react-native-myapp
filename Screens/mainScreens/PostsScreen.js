@@ -1,13 +1,45 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { View, Image, Text, StyleSheet, FlatList } from "react-native";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { selectName, selectEmail } from "../../redux/auth/authSelectors";
 import PostItem from "../../components/PostItem";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const name = useSelector(selectName);
+  const email = useSelector(selectEmail);
+
+  const getAllPosts = async () => {
+    setLoader(true);
+    const q = query(collection(db, "posts"), orderBy("date", "desc"));
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const postsArr = [];
+        querySnapshot.forEach((doc) => {
+          postsArr.push({
+            ...doc.data(),
+            id: doc.id,
+          });
+        });
+        setPosts(postsArr);
+        setLoader(false);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+    return () => {
+      unsubscribe();
+    };
+  };
 
   useEffect(() => {
-    if (route.params) setPosts((prevState) => [route.params, ...prevState]);
-  }, [route.params]);
+    getAllPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -17,18 +49,20 @@ const PostsScreen = ({ navigation, route }) => {
           source={require("../../assets/images/avatar.jpg")}
         />
         <View style={styles.wrapper}>
-          <Text style={styles.name}>name</Text>
-          <Text style={styles.email}>email</Text>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
       <FlatList
         data={posts}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <PostItem
             navigation={navigation}
             photo={item.photo}
-            title={item.photoTitle}
+            title={item.description}
+            userId={item.userId}
+            id={item.id}
             location={item.location}
             locationName={item.locationName}
           />

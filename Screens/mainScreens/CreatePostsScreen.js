@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Camera, CameraType } from "expo-camera";
 import * as Location from "expo-location";
+import { storage, db } from "../../firebase/config";
+import { addDoc, collection } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import "react-native-get-random-values";
+import uuid from "react-native-uuid";
 import {
   View,
   Text,
@@ -15,52 +21,91 @@ import {
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
-
+import {
+  selectAvatar,
+  selectId,
+  selectName,
+} from "../../redux/auth/authSelectors";
 import Button from "../../components/Button";
 
 const CreatePostsScreen = ({ navigation }) => {
   const [camera, setCamera] = useState(null);
   const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
+  // const [errorMsg, setErrorMsg] = useState(null);
   const [photo, setPhoto] = useState("");
-  const [photoTitle, setPhotoTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [locationName, setLocationName] = useState("");
+  const userId = useSelector(selectId);
+  const avatar = useSelector(selectAvatar);
 
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
+        console.log("Permission to access location was denied");
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
+      let locationRes = await Location.getCurrentPositionAsync({});
+      setLocation(locationRes);
     })();
   }, []);
 
   const takePhoto = async () => {
+    console.log("description", description);
+    console.log("location", location);
     if (camera) {
       const photo = await camera.takePictureAsync();
       setPhoto(photo.uri);
     }
   };
 
-  const sendPost = () => {
+  const uploadPhotoToStorage = async () => {
+    const response = await fetch(photo);
+    const file = await response.blob();
+
+    const imageId = uuid.v4();
+    const storageRef = ref(storage, `postImage/${imageId}`);
+
+    await uploadBytes(storageRef, file);
+
+    const urlPhoto = await getDownloadURL(ref(storage, `postImage/${imageId}`));
+    return urlPhoto;
+  };
+
+  const uploadPostToServer = async () => {
+    try {
+      const date = new Date();
+      const photo = await uploadPhotoToStorage();
+
+      const obj = {
+        userId,
+        photo,
+        description,
+        locationName,
+        date,
+      };
+      console.log(obj);
+      if (location) obj.location = location.coords;
+      await addDoc(collection(db, "posts"), obj);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendPost = async () => {
+    await uploadPostToServer();
+
     setPhoto("");
-    setPhotoTitle("");
-    setLocation("");
+    setDescription("");
     setLocationName("");
-    navigation.navigate("Публікації", {
-      photo,
-      photoTitle,
-      location,
-      locationName,
-    });
+    navigation.navigate("Публікації");
   };
 
   const deletePhoto = () => {
     setPhoto("");
+    setDescription("");
+    setLocation("");
     Keyboard.dismiss;
   };
 
@@ -96,8 +141,8 @@ const CreatePostsScreen = ({ navigation }) => {
           </Pressable>
 
           <TextInput
-            value={photoTitle}
-            onChangeText={setPhotoTitle}
+            value={description}
+            onChangeText={setDescription}
             placeholder="Назва"
             style={{ ...styles.input, marginTop: 32 }}
           />

@@ -1,29 +1,90 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import {
+  addDoc,
+  collection,
+  doc,
+  orderBy,
+  onSnapshot,
+  query,
+  updateDoc,
+} from "firebase/firestore";
 import {
   View,
   Image,
   TextInput,
+  FlatList,
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
-  Text,
   Pressable,
   StyleSheet,
 } from "react-native";
+import date from "date-and-time";
+import uk from "date-and-time/locale/uk";
+import { db, auth } from "../../firebase/config";
 import { Feather } from "@expo/vector-icons";
 import Comment from "../../components/Comment";
+import { selectId } from "../../redux/auth/authSelectors";
 
 const CommentsScreen = ({ route }) => {
+  const { photo, postId, autorPostId } = route.params;
+  // const currentUid = auth.currentUser.uid;
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
+  const userId = useSelector(selectId);
 
-  const { photo } = route.params;
+  date.locale(uk);
+  const commentDate = new Date();
 
-  const postComment = () => {
-    console.log(comment);
+  const createComment = async () => {
+    if (comment === "") return;
+    try {
+      const time = date.format(new Date(), "D MMMM, YYYY | HH:mm");
+
+      await addDoc(collection(db, "posts", postId, "comments"), {
+        //  avatar,
+        comment,
+        time,
+        autorCommentId: userId,
+        commentDate,
+      });
+    } catch (err) {
+      return Alert.alert(`Упс: ${err.message}`);
+    }
     setComment("");
     Keyboard.dismiss;
   };
+
+  const getAllComments = async () => {
+    const q = query(
+      collection(db, "posts", postId, "comments"),
+      orderBy("commentDate")
+    );
+    const commentRef = doc(db, "posts", postId);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const commentsArr = [];
+      snapshot.forEach((doc) =>
+        commentsArr.push({
+          ...doc.data(),
+          id: doc.id,
+        })
+      );
+      updateDoc(commentRef, {
+        commentCounter: commentsArr.length > 0 ? commentsArr.length : null,
+      });
+
+      setAllComments(commentsArr);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  };
+
+  useEffect(() => {
+    getAllComments();
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -34,17 +95,18 @@ const CommentsScreen = ({ route }) => {
         <View style={styles.container}>
           <Image source={{ uri: photo }} style={styles.photo} />
           <View style={{ flex: 1 }}>
-            {/* <FlatList
+            <FlatList
               data={allComments}
-              keyExtractor={(item, index) => index.toString()}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <Comment
-                  text={item.text}
-               
+                  text={item.comment}
+                  time={item.time}
+                  autorPostId={autorPostId}
+                  autorCommentId={item.autorCommentId}
                 />
               )}
-            /> */}
-            <Comment text={comment} />
+            />
           </View>
           <View>
             <TextInput
@@ -53,7 +115,7 @@ const CommentsScreen = ({ route }) => {
               placeholder="Коментувати..."
               style={styles.input}
             />
-            <Pressable style={styles.sendBtn} onPress={postComment}>
+            <Pressable style={styles.sendBtn} onPress={createComment}>
               <Feather name="arrow-up" size={24} color="#FFFFFF" />
             </Pressable>
           </View>
