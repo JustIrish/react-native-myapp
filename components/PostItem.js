@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebase/config";
 import { EvilIcons } from "@expo/vector-icons";
 
 const PostItem = ({
@@ -10,11 +12,23 @@ const PostItem = ({
   userId,
   location,
   locationName,
+  likes = "",
+  comment = "",
 }) => {
-  // console.log(navigation, photo, title, location, locationName);
+  const updateLikes = async (likes, id) => {
+    try {
+      const likeRef = doc(db, "posts", id);
+      await updateDoc(likeRef, {
+        likes: likes,
+      });
+    } catch (error) {
+      console.log("err", error.message);
+    }
+  };
 
-  const [like, setLike] = useState(0);
-  const [comment, setComment] = useState(0);
+  const handlerLikePress = async () => {
+    updateLikes(likes + 1, id);
+  };
 
   return (
     <View>
@@ -31,26 +45,37 @@ const PostItem = ({
               });
             }}
           >
-            <EvilIcons name="comment" size={24} color="#BDBDBD" />
+            <EvilIcons
+              name="comment"
+              size={24}
+              color={comment > 0 ? "#FF6C00" : "#BDBDBD"}
+            />
           </Pressable>
-          <Text style={styles.descText}>0</Text>
+          <Text style={styles.descText}>{comment}</Text>
+
+          <Pressable style={{ marginLeft: 10 }} onPress={handlerLikePress}>
+            <EvilIcons
+              name="like"
+              size={26}
+              color={likes > 0 ? "#FF6C00" : "#BDBDBD"}
+            />
+          </Pressable>
+          <Text style={styles.descText}>{likes}</Text>
         </View>
 
-        <View style={styles.wrap}>
-          <Pressable>
-            <EvilIcons name="like" size={26} color="#BDBDBD" />
-          </Pressable>
-          <Text style={styles.descText}>0</Text>
-        </View>
-
-        <View style={styles.wrap}>
+        <View>
           <Pressable
+            style={styles.wrap}
             onPress={() => {
               navigation.navigate("Map", { location });
             }}
           >
             <EvilIcons name="location" size={24} color="#BDBDBD" />
-            <Text style={styles.descText}>{locationName}</Text>
+            <Text
+              style={{ ...styles.descText, textDecorationLine: "underline" }}
+            >
+              {locationName}
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -67,7 +92,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginBottom: 11,
-    fontFamily: "Roboto400",
+    fontFamily: "Roboto500",
     fontSize: 16,
     lineHeight: 19,
   },
@@ -81,6 +106,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   descText: {
+    fontFamily: "Roboto400",
+    fontSize: 16,
+    lineHeight: 19,
     marginLeft: 6,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -12,11 +12,13 @@ import {
   TextInput,
   Pressable,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
 import { register } from "../../redux/auth/authOperations";
+import { selectIsAuth } from "../../redux/auth/authSelectors";
 
 export default function RegistrationScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -32,6 +34,7 @@ export default function RegistrationScreen({ navigation }) {
   const [avatar, setAvatar] = useState(null);
 
   const dispatch = useDispatch();
+  const isAuth = useSelector(selectIsAuth);
 
   const loginHandler = (value) => setLogin(value);
 
@@ -137,7 +140,20 @@ export default function RegistrationScreen({ navigation }) {
                 </Text>
               </Pressable>
             </View>
-            <Button onSubmit={handleSubmit} title={"Зареєструватись"} />
+            <Button
+              onSubmit={handleSubmit}
+              title={
+                isAuth ? (
+                  <ActivityIndicator
+                    animating={isAuth}
+                    size="small"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  "Зареєструватись"
+                )
+              }
+            />
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Вже є акаунт? </Text>
               <Pressable onPress={() => navigation.navigate("Login")}>

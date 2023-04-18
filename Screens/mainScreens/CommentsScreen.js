@@ -22,14 +22,13 @@ import {
 } from "react-native";
 import date from "date-and-time";
 import uk from "date-and-time/locale/uk";
-import { db, auth } from "../../firebase/config";
+import { db } from "../../firebase/config";
 import { Feather } from "@expo/vector-icons";
 import Comment from "../../components/Comment";
 import { selectId } from "../../redux/auth/authSelectors";
 
 const CommentsScreen = ({ route }) => {
   const { photo, postId, autorPostId } = route.params;
-  // const currentUid = auth.currentUser.uid;
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
   const userId = useSelector(selectId);
@@ -56,7 +55,7 @@ const CommentsScreen = ({ route }) => {
     Keyboard.dismiss;
   };
 
-  const getAllComments = async () => {
+  const getAllComments = () => {
     const q = query(
       collection(db, "posts", postId, "comments"),
       orderBy("commentDate")

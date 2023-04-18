@@ -26,7 +26,15 @@ const Comment = ({ text, time, autorPostId, autorCommentId }) => {
         }
       >
         <Text>{text}</Text>
-        <Text style={styles.time}>{time} </Text>
+        <Text
+          style={
+            isMyComment
+              ? { ...styles.time, textAlign: "left" }
+              : { ...styles.time, textAlign: "right" }
+          }
+        >
+          {time}{" "}
+        </Text>
       </View>
     </View>
   );
@@ -51,15 +59,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
   },
 
+  textComment: {
+    fontFamily: "Roboto400",
+    fontSize: 13,
+    lineHeight: 18,
+  },
+
   time: {
     fontSize: 10,
-    lineHeight: 18,
-    width: 350,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    marginTop: 8,
+    lineHeight: 12,
     color: "#BDBDBD",
+    marginTop: 8,
   },
 });
 

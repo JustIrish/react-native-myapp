@@ -18,6 +18,7 @@ import {
   Pressable,
   TextInput,
   Image,
+  ActivityIndicator,
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
@@ -35,6 +36,7 @@ const CreatePostsScreen = ({ navigation }) => {
   const [photo, setPhoto] = useState("");
   const [description, setDescription] = useState("");
   const [locationName, setLocationName] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const userId = useSelector(selectId);
   const avatar = useSelector(selectAvatar);
 
@@ -52,8 +54,6 @@ const CreatePostsScreen = ({ navigation }) => {
   }, []);
 
   const takePhoto = async () => {
-    console.log("description", description);
-    console.log("location", location);
     if (camera) {
       const photo = await camera.takePictureAsync();
       setPhoto(photo.uri);
@@ -74,6 +74,7 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const uploadPostToServer = async () => {
+    setIsUploading(true);
     try {
       const date = new Date();
       const photo = await uploadPhotoToStorage();
@@ -85,9 +86,9 @@ const CreatePostsScreen = ({ navigation }) => {
         locationName,
         date,
       };
-      console.log(obj);
       if (location) obj.location = location.coords;
       await addDoc(collection(db, "posts"), obj);
+      setIsUploading(false);
     } catch (error) {
       console.log(error);
     }
@@ -159,7 +160,20 @@ const CreatePostsScreen = ({ navigation }) => {
           </View>
           <View style={{ flex: 1, justifyContent: "space-around" }}>
             {photo ? (
-              <Button title={"Опублікувати"} onSubmit={sendPost} />
+              <Button
+                title={
+                  isUploading ? (
+                    <ActivityIndicator
+                      animating={isUploading}
+                      size="small"
+                      color="#FFFFFF"
+                    />
+                  ) : (
+                    "Опублікувати"
+                  )
+                }
+                onSubmit={sendPost}
+              />
             ) : (
               <Pressable style={styles.button}>
                 <Text style={styles.text}>Опублікувати</Text>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -11,10 +11,12 @@ import {
   TextInput,
   Pressable,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
 import { logIn } from "../../redux/auth/authOperations";
+import { selectIsAuth } from "../../redux/auth/authSelectors";
 
 export default function LoginScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -27,6 +29,7 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
+  const isAuth = useSelector(selectIsAuth);
 
   const emailHandler = (value) => setEmail(value);
 
@@ -109,7 +112,20 @@ export default function LoginScreen({ navigation }) {
                 </Text>
               </Pressable>
             </View>
-            <Button onSubmit={onSubmit} title={"Увійти"} />
+            <Button
+              onSubmit={onSubmit}
+              title={
+                isAuth ? (
+                  <ActivityIndicator
+                    animating={isAuth}
+                    size="small"
+                    color="#FFFFFF"
+                  />
+                ) : (
+                  "Увійти"
+                )
+              }
+            />
             <View style={styles.subscribe}>
               <Text style={styles.subscribeText}>Немає акаунту? </Text>
               <Pressable onPress={() => navigation.navigate("Registration")}>

@@ -5,7 +5,7 @@ import {
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { auth, storage, db } from "../../firebase/config";
+import { auth } from "../../firebase/config";
 
 export const register = createAsyncThunk(
   "auth/register",
@@ -16,7 +16,7 @@ export const register = createAsyncThunk(
         credentials.email,
         credentials.password
       );
-      console.log(user);
+
       await updateProfile(auth.currentUser, {
         displayName: credentials.login,
         photoURL: credentials.avatar,

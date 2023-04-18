@@ -1,19 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { View, Image, Text, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase/config";
-import { selectName, selectEmail } from "../../redux/auth/authSelectors";
+import {
+  selectName,
+  selectEmail,
+  selectIsAuth,
+} from "../../redux/auth/authSelectors";
 import PostItem from "../../components/PostItem";
 
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
-  const [loader, setLoader] = useState(false);
+  const [loading, setLoading] = useState(false);
   const name = useSelector(selectName);
   const email = useSelector(selectEmail);
+  const isAuth = useSelector(selectIsAuth);
 
   const getAllPosts = async () => {
-    setLoader(true);
+    setLoading(true);
     const q = query(collection(db, "posts"), orderBy("date", "desc"));
     const unsubscribe = onSnapshot(
       q,
@@ -26,7 +38,7 @@ const PostsScreen = ({ navigation, route }) => {
           });
         });
         setPosts(postsArr);
-        setLoader(false);
+        setLoading(false);
       },
       (error) => {
         console.log(error);
@@ -38,36 +50,46 @@ const PostsScreen = ({ navigation, route }) => {
   };
 
   useEffect(() => {
+    if (!isAuth) return;
     getAllPosts();
   }, []);
 
   return (
     <View style={styles.container}>
-      <View style={styles.avatar}>
-        <Image
-          style={styles.image}
-          source={require("../../assets/images/avatar.jpg")}
-        />
-        <View style={styles.wrapper}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.email}>{email}</Text>
-        </View>
-      </View>
-      <FlatList
-        data={posts}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <PostItem
-            navigation={navigation}
-            photo={item.photo}
-            title={item.description}
-            userId={item.userId}
-            id={item.id}
-            location={item.location}
-            locationName={item.locationName}
+      {isAuth && (
+        <>
+          <View style={styles.avatar}>
+            <Image
+              style={styles.image}
+              source={require("../../assets/images/avatar.jpg")}
+            />
+            <View style={styles.wrapper}>
+              <Text style={styles.name}>{name}</Text>
+              <Text style={styles.email}>{email}</Text>
+            </View>
+          </View>
+          <ActivityIndicator animating={loading} size="small" color="#FF6C00" />
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <PostItem
+                navigation={navigation}
+                photo={item.photo}
+                title={item.description}
+                userId={item.userId}
+                id={item.id}
+                location={item.location}
+                locationName={
+                  item.locationName ? item.locationName : "Somewhere..."
+                }
+                likes={item.likes}
+                comment={item.commentCounter}
+              />
+            )}
           />
-        )}
-      />
+        </>
+      )}
     </View>
   );
 };

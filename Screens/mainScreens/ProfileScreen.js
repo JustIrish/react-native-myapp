@@ -1,18 +1,55 @@
-import React from "react";
-import { View, Image, Text, Pressable, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Image,
+  Text,
+  Pressable,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { collection, query, onSnapshot, where } from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { db } from "../../firebase/config";
 
 import { logOut } from "../../redux/auth/authOperations";
-
+import { selectId, selectName } from "../../redux/auth/authSelectors";
 import ImageBg from "../../components/ImageBg";
+import PostItem from "../../components/PostItem";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const currentUserId = useSelector(selectId);
+  const nickName = useSelector(selectName);
+  const [userPosts, setUserPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const getUsersPosts = () => {
+    setLoading(true);
+    const q = query(
+      collection(db, "posts"),
+      where("userId", "==", currentUserId)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const userPosts = [];
+      snapshot.forEach((doc) => userPosts.push({ ...doc.data(), id: doc.id }));
+      setUserPosts(userPosts);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  };
+
+  useEffect(() => {
+    getUsersPosts();
+  }, []);
 
   const HandlerLogOut = () => {
-    dispatch(logOut())
+    dispatch(logOut());
   };
 
   return (
@@ -33,8 +70,27 @@ const ProfileScreen = () => {
         >
           <Feather name="log-out" size={24} color="#BDBDBD" />
         </Pressable>
-
-        <Text></Text>
+        <Text style={styles.userName}>{nickName}</Text>
+        <ActivityIndicator animating={loading} size="small" color="#FF6C00" />
+        <FlatList
+          data={userPosts}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <PostItem
+              navigation={navigation}
+              photo={item.photo}
+              title={item.description}
+              userId={item.userId}
+              id={item.id}
+              location={item.location}
+              locationName={
+                item.locationName ? item.locationName : "Somewhere..."
+              }
+              likes={item.likes}
+              comment={item.commentCounter}
+            />
+          )}
+        />
       </View>
     </ImageBg>
   );
@@ -46,6 +102,7 @@ const styles = StyleSheet.create({
     height: "80%",
     marginTop: 103,
     paddingHorizontal: 16,
+    paddingTop: 92,
     paddingBottom: 45,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -69,6 +126,14 @@ const styles = StyleSheet.create({
     bottom: 10,
     backgroundColor: "#fff",
     borderRadius: 50,
+  },
+  userName: {
+    fontFamily: "Roboto500",
+    fontSize: 30,
+    lineHeight: 35,
+    textAlign: "center",
+    color: "#212121",
+    marginBottom: 33,
   },
 });
 

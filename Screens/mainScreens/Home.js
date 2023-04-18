@@ -1,7 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Feather } from "@expo/vector-icons";
-import { View, StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Pressable } from "react-native";
 import { useDispatch } from "react-redux";
 
 import { logOut } from "../../redux/auth/authOperations";
@@ -16,7 +16,6 @@ const Home = ({ navigation, route }) => {
 
   return (
     <MainTab.Navigator
-      // initialRouteName="Публікації"
       screenOptions={({ route }) => ({
         tabBarShowLabel: false,
         tabBarStyle: {
@@ -46,7 +45,11 @@ const Home = ({ navigation, route }) => {
             </View>
           ),
           headerRight: () => (
-            <Pressable onPress={()=>{dispatch(logOut())}}>
+            <Pressable
+              onPress={() => {
+                dispatch(logOut());
+              }}
+            >
               <Feather
                 name="log-out"
                 size={24}
