@@ -13,6 +13,7 @@ import { db } from "../../firebase/config";
 import {
   selectName,
   selectEmail,
+  selectAvatar,
   selectIsAuth,
 } from "../../redux/auth/authSelectors";
 import PostItem from "../../components/PostItem";
@@ -20,11 +21,13 @@ import PostItem from "../../components/PostItem";
 const PostsScreen = ({ navigation, route }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const defaultAvatar = require("../../assets/images/imagesAva.png");
   const name = useSelector(selectName);
   const email = useSelector(selectEmail);
+  const ava = useSelector(selectAvatar);
   const isAuth = useSelector(selectIsAuth);
 
-  const getAllPosts = async () => {
+  const getAllPosts = () => {
     setLoading(true);
     const q = query(collection(db, "posts"), orderBy("date", "desc"));
     const unsubscribe = onSnapshot(
@@ -61,7 +64,7 @@ const PostsScreen = ({ navigation, route }) => {
           <View style={styles.avatar}>
             <Image
               style={styles.image}
-              source={require("../../assets/images/avatar.jpg")}
+              source={ava ? { uri: ava } : defaultAvatar}
             />
             <View style={styles.wrapper}>
               <Text style={styles.name}>{name}</Text>

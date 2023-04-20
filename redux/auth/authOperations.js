@@ -1,11 +1,14 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   updateProfile,
   signOut,
 } from "firebase/auth";
-import { auth } from "../../firebase/config";
+import "react-native-get-random-values";
+import uuid from "react-native-uuid";
+import { auth, storage } from "../../firebase/config";
 
 export const register = createAsyncThunk(
   "auth/register",
@@ -66,3 +69,38 @@ export const logOut = createAsyncThunk("auth/logOut", async (_, thunkAPI) => {
     return thunkAPI.rejectWithValue(error.message);
   }
 });
+
+export const setAvatarAuth = createAsyncThunk(
+  "auth/setAvatar",
+  async ({ directoryName, uriAvatar }, thunkAPI) => {
+    try {
+      const avatar = await uploadPhotoToStorage(directoryName, uriAvatar);
+      await updateProfile(auth.currentUser, { photoURL: avatar });
+      const updateUser = auth.currentUser;
+      return {
+        name: updateUser.displayName,
+        email: updateUser.email,
+        id: updateUser.uid,
+        token: updateUser.accessToken,
+        avatar: updateUser.photoURL,
+      };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const uploadPhotoToStorage = async (directoryName, uri) => {
+  const response = await fetch(uri);
+  const file = await response.blob();
+
+  const imageId = uuid.v4();
+  const storageRef = ref(storage, `${directoryName}/${imageId}`);
+
+  await uploadBytes(storageRef, file);
+
+  const urlPhoto = await getDownloadURL(
+    ref(storage, `${directoryName}/${imageId}`)
+  );
+  return urlPhoto;
+};

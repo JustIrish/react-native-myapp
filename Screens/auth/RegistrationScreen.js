@@ -15,9 +15,10 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
-import { register } from "../../redux/auth/authOperations";
+import { register, setAvatarAuth } from "../../redux/auth/authOperations";
 import { selectIsAuth } from "../../redux/auth/authSelectors";
 
 export default function RegistrationScreen({ navigation }) {
@@ -54,6 +55,22 @@ export default function RegistrationScreen({ navigation }) {
     });
   };
 
+  const addAvatar = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const uriAvatar = result.assets[0].uri;
+      setAvatar(uriAvatar);
+      const directoryName = "avatars";
+      dispatch(setAvatarAuth({ directoryName, uriAvatar }));
+    }
+  };
+
   const handleSubmit = () => {
     if (login.trim() === "" || email.trim() === "" || password.trim() === "") {
       return Alert.alert("Заповніть всі поля");
@@ -61,11 +78,7 @@ export default function RegistrationScreen({ navigation }) {
     setIsShowKeyBoard(false);
     Keyboard.dismiss();
 
-    dispatch(register({ login, email, password }));
-
-    setLogin("");
-    setEmail("");
-    setPassword("");
+    dispatch(register({ login, email, password, avatar }));
   };
 
   return (
@@ -77,9 +90,23 @@ export default function RegistrationScreen({ navigation }) {
           <View
             style={{ ...styles.avatarWrap, top: isShowKeyBoard ? 44 : 160 }}
           >
-            {/* <Image /> */}
-            <Pressable>
-              <AntDesign name="pluscircleo" size={26} style={styles.icon} />
+            <Image style={styles.avatar} source={{ uri: avatar }} />
+            <Pressable onPress={addAvatar}>
+              {avatar ? (
+                <AntDesign
+                  name="closecircleo"
+                  size={26}
+                  style={styles.icon}
+                  color="#E8E8E8"
+                />
+              ) : (
+                <AntDesign
+                  name="pluscircleo"
+                  size={26}
+                  style={styles.icon}
+                  color="#FF6C00"
+                />
+              )}
             </Pressable>
           </View>
           <View
@@ -178,11 +205,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
   },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+  },
   icon: {
     position: "absolute",
     right: -13,
-    top: 81,
-    color: "#FF6C00",
+    top: -36,
   },
   form: {
     backgroundColor: "#FFFFFF",

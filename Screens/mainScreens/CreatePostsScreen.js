@@ -2,11 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Camera, CameraType } from "expo-camera";
 import * as Location from "expo-location";
-import { storage, db } from "../../firebase/config";
+import { db } from "../../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import "react-native-get-random-values";
-import uuid from "react-native-uuid";
+
 import {
   View,
   Text,
@@ -22,6 +20,7 @@ import {
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
+import { uploadPhotoToStorage } from "../../redux/auth/authOperations";
 import {
   selectAvatar,
   selectId,
@@ -60,28 +59,15 @@ const CreatePostsScreen = ({ navigation }) => {
     }
   };
 
-  const uploadPhotoToStorage = async () => {
-    const response = await fetch(photo);
-    const file = await response.blob();
-
-    const imageId = uuid.v4();
-    const storageRef = ref(storage, `postImage/${imageId}`);
-
-    await uploadBytes(storageRef, file);
-
-    const urlPhoto = await getDownloadURL(ref(storage, `postImage/${imageId}`));
-    return urlPhoto;
-  };
-
   const uploadPostToServer = async () => {
     setIsUploading(true);
     try {
       const date = new Date();
-      const photo = await uploadPhotoToStorage();
+      const urlPhoto = await uploadPhotoToStorage("postImage", photo);
 
       const obj = {
         userId,
-        photo,
+        photo: urlPhoto,
         description,
         locationName,
         date,

@@ -8,14 +8,25 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { collection, query, onSnapshot, where } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  where,
+} from "firebase/firestore";
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
 import { db } from "../../firebase/config";
 
-import { logOut } from "../../redux/auth/authOperations";
-import { selectId, selectName } from "../../redux/auth/authSelectors";
+import { logOut, setAvatarAuth } from "../../redux/auth/authOperations";
+import {
+  selectId,
+  selectName,
+  selectAvatar,
+} from "../../redux/auth/authSelectors";
 import ImageBg from "../../components/ImageBg";
 import PostItem from "../../components/PostItem";
 
@@ -23,15 +34,38 @@ const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const currentUserId = useSelector(selectId);
   const nickName = useSelector(selectName);
+  const ava = useSelector(selectAvatar);
+  const defaultAvatar = require("../../assets/images/imagesAva.png");
   const [userPosts, setUserPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const changeAvatar = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 4],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const uriAvatar = result.assets[0].uri;
+        const directoryName = "avatars";
+        dispatch(setAvatarAuth({ directoryName, uriAvatar }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getUsersPosts = () => {
     setLoading(true);
     const q = query(
       collection(db, "posts"),
+      orderBy("date", "desc"),
       where("userId", "==", currentUserId)
     );
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const userPosts = [];
       snapshot.forEach((doc) => userPosts.push({ ...doc.data(), id: doc.id }));
@@ -58,9 +92,9 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.avatarWrap}>
           <Image
             style={styles.image}
-            source={require("../../assets/images/avatar.jpg")}
+            source={ava ? { uri: ava } : defaultAvatar}
           />
-          <Pressable style={styles.pressIcon}>
+          <Pressable style={styles.pressIcon} onPress={changeAvatar}>
             <AntDesign name="closecircleo" size={26} color="#E8E8E8" />
           </Pressable>
         </View>
@@ -71,6 +105,7 @@ const ProfileScreen = ({ navigation }) => {
           <Feather name="log-out" size={24} color="#BDBDBD" />
         </Pressable>
         <Text style={styles.userName}>{nickName}</Text>
+
         <ActivityIndicator animating={loading} size="small" color="#FF6C00" />
         <FlatList
           data={userPosts}

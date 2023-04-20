@@ -21,13 +21,14 @@ const Routing = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        const { displayName, email, uid, accessToken } = user;
+        const { displayName, email, uid, accessToken, photoURL } = user;
         dispatch(
           refreshUser({
             name: displayName,
             email: email,
             id: uid,
             token: accessToken,
+            avatar: photoURL,
           })
         );
       } else {

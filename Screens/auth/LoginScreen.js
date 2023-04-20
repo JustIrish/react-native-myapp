@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   StyleSheet,
   Text,
@@ -16,7 +16,6 @@ import {
 import ImageBg from "../../components/ImageBg";
 import Button from "../../components/Button";
 import { logIn } from "../../redux/auth/authOperations";
-import { selectIsAuth } from "../../redux/auth/authSelectors";
 
 export default function LoginScreen({ navigation }) {
   const [isShowKeyBoard, setIsShowKeyBoard] = useState(false);
@@ -25,11 +24,11 @@ export default function LoginScreen({ navigation }) {
     password: false,
   });
   const [isPassVisible, setIsPassVisible] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-  const isAuth = useSelector(selectIsAuth);
 
   const emailHandler = (value) => setEmail(value);
 
@@ -48,7 +47,9 @@ export default function LoginScreen({ navigation }) {
   };
 
   const onSubmit = () => {
+    setIsLoading(true);
     if (email.trim() === "" || password.trim() === "") {
+      setIsLoading(false);
       return Alert.alert("Заповніть всі поля");
     }
     setIsShowKeyBoard(false);
@@ -56,8 +57,7 @@ export default function LoginScreen({ navigation }) {
 
     dispatch(logIn({ email, password }));
 
-    setEmail("");
-    setPassword("");
+    setIsLoading(false);
   };
 
   return (
@@ -115,9 +115,9 @@ export default function LoginScreen({ navigation }) {
             <Button
               onSubmit={onSubmit}
               title={
-                isAuth ? (
+                isLoading ? (
                   <ActivityIndicator
-                    animating={isAuth}
+                    animating={isLoading}
                     size="small"
                     color="#FFFFFF"
                   />
