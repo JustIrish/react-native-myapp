@@ -25,24 +25,26 @@ import uk from "date-and-time/locale/uk";
 import { db } from "../../firebase/config";
 import { Feather } from "@expo/vector-icons";
 import Comment from "../../components/Comment";
-import { selectId } from "../../redux/auth/authSelectors";
+import { selectId, selectAvatar } from "../../redux/auth/authSelectors";
 
 const CommentsScreen = ({ route }) => {
   const { photo, postId, autorPostId } = route.params;
   const [comment, setComment] = useState("");
   const [allComments, setAllComments] = useState([]);
   const userId = useSelector(selectId);
+  const avatar = useSelector(selectAvatar);
 
   date.locale(uk);
   const commentDate = new Date();
 
   const createComment = async () => {
+    Keyboard.dismiss;
     if (comment === "") return;
     try {
       const time = date.format(new Date(), "D MMMM, YYYY | HH:mm");
 
       await addDoc(collection(db, "posts", postId, "comments"), {
-        //  avatar,
+        avatar,
         comment,
         time,
         autorCommentId: userId,
@@ -52,7 +54,6 @@ const CommentsScreen = ({ route }) => {
       return Alert.alert(`Упс: ${err.message}`);
     }
     setComment("");
-    Keyboard.dismiss;
   };
 
   const getAllComments = () => {
@@ -99,6 +100,7 @@ const CommentsScreen = ({ route }) => {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <Comment
+                  avatar={item.avatar}
                   text={item.comment}
                   time={item.time}
                   autorPostId={autorPostId}

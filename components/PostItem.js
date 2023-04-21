@@ -10,6 +10,7 @@ const PostItem = ({
   title,
   id,
   userId,
+  avatar,
   location,
   locationName,
   likes = "",
@@ -40,6 +41,7 @@ const PostItem = ({
             onPress={() => {
               navigation.navigate("Comments", {
                 photo,
+                avatar,
                 postId: id,
                 autorPostId: userId,
               });

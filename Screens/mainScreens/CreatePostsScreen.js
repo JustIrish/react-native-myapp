@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Camera, CameraType } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
 import * as Location from "expo-location";
 import { db } from "../../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
-
+import * as ImagePicker from "expo-image-picker";
+import { useIsFocused } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -36,10 +38,17 @@ const CreatePostsScreen = ({ navigation }) => {
   const [description, setDescription] = useState("");
   const [locationName, setLocationName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
   const userId = useSelector(selectId);
-  const avatar = useSelector(selectAvatar);
+  const isFocused = useIsFocused();
+  // const avatar = useSelector(selectAvatar);
 
   useEffect(() => {
+    (async () => {
+      let { status } = await Camera.requestCameraPermissionsAsync();
+      await MediaLibrary.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -56,6 +65,24 @@ const CreatePostsScreen = ({ navigation }) => {
     if (camera) {
       const photo = await camera.takePictureAsync();
       setPhoto(photo.uri);
+    }
+  };
+
+  const downloadPicture = async () => {
+    try {
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        const pictureUri = result.assets[0].uri;
+        setPhoto(pictureUri);
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -87,13 +114,13 @@ const CreatePostsScreen = ({ navigation }) => {
     setDescription("");
     setLocationName("");
     navigation.navigate("Публікації");
+    Keyboard.dismiss;
   };
 
   const deletePhoto = () => {
     setPhoto("");
     setDescription("");
     setLocation("");
-    Keyboard.dismiss;
   };
 
   return (
@@ -111,19 +138,21 @@ const CreatePostsScreen = ({ navigation }) => {
               />
             </View>
           ) : (
-            <Camera
-              style={styles.camera}
-              ref={(ref) => {
-                setCamera(ref);
-              }}
-            >
-              <TouchableOpacity onPress={takePhoto} style={styles.cameraBtn}>
-                <Feather name="camera" size={30} color="#BDBDBD" />
-              </TouchableOpacity>
-            </Camera>
+            isFocused && (
+              <Camera
+                style={styles.camera}
+                ref={(ref) => {
+                  setCamera(ref);
+                }}
+              >
+                <TouchableOpacity onPress={takePhoto} style={styles.cameraBtn}>
+                  <Feather name="camera" size={30} color="#BDBDBD" />
+                </TouchableOpacity>
+              </Camera>
+            )
           )}
 
-          <Pressable>
+          <Pressable onPress={downloadPicture}>
             <Text style={styles.pressText}>Завантажте фото</Text>
           </Pressable>
 

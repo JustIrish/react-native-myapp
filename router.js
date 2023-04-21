@@ -44,13 +44,13 @@ const Routing = () => {
       <AuthStack.Navigator>
         <AuthStack.Screen
           options={{ headerShown: false }}
-          name="Registration"
-          component={Registration}
+          name="Login"
+          component={Login}
         />
         <AuthStack.Screen
           options={{ headerShown: false }}
-          name="Login"
-          component={Login}
+          name="Registration"
+          component={Registration}
         />
       </AuthStack.Navigator>
     );

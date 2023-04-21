@@ -1,7 +1,8 @@
 import React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
 
-const Comment = ({ text, time, autorPostId, autorCommentId }) => {
+const Comment = ({ avatar, text, time, autorPostId, autorCommentId }) => {
+  const defaultAvatar = require("../assets/images/imagesAva.png");
   const isMyComment = autorPostId === autorCommentId;
 
   return (
@@ -12,6 +13,7 @@ const Comment = ({ text, time, autorPostId, autorCommentId }) => {
       }}
     >
       <Image
+        source={avatar ? { uri: avatar } : defaultAvatar}
         style={
           isMyComment
             ? { ...styles.avatar, marginLeft: 16 }
