@@ -107,25 +107,37 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.userName}>{nickName}</Text>
 
         <ActivityIndicator animating={loading} size="small" color="#FF6C00" />
-        <FlatList
-          data={userPosts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <PostItem
-              navigation={navigation}
-              photo={item.photo}
-              title={item.description}
-              userId={item.userId}
-              id={item.id}
-              location={item.location}
-              locationName={
-                item.locationName ? item.locationName : "Somewhere..."
-              }
-              likes={item.likes}
-              comment={item.commentCounter}
-            />
-          )}
-        />
+        {userPosts.length === 0 ? (
+          <Text
+            style={{
+              fontFamily: "Roboto400",
+              fontSize: 16,
+              textAlign: "center",
+            }}
+          >
+            У Вас ще немає жодного допису
+          </Text>
+        ) : (
+          <FlatList
+            data={userPosts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <PostItem
+                navigation={navigation}
+                photo={item.photo}
+                title={item.description}
+                userId={item.userId}
+                id={item.id}
+                location={item.location}
+                locationName={
+                  item.locationName ? item.locationName : "Somewhere..."
+                }
+                likes={item.likes}
+                comment={item.commentCounter}
+              />
+            )}
+          />
+        )}
       </View>
     </ImageBg>
   );

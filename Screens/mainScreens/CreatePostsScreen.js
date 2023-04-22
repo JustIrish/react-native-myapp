@@ -10,6 +10,7 @@ import { useIsFocused } from "@react-navigation/native";
 import {
   View,
   Text,
+  Alert,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
@@ -108,6 +109,9 @@ const CreatePostsScreen = ({ navigation }) => {
   };
 
   const sendPost = async () => {
+    if (description.trim() === "") {
+      return Alert.alert("Warning", "Заповніть опис до фото");
+    }
     await uploadPostToServer();
 
     setPhoto("");

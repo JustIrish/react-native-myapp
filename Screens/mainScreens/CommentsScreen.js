@@ -38,8 +38,8 @@ const CommentsScreen = ({ route }) => {
   const commentDate = new Date();
 
   const createComment = async () => {
-    Keyboard.dismiss;
-    if (comment === "") return;
+    if (comment.trim() === "") return;
+
     try {
       const time = date.format(new Date(), "D MMMM, YYYY | HH:mm");
 
@@ -51,9 +51,10 @@ const CommentsScreen = ({ route }) => {
         commentDate,
       });
     } catch (err) {
-      return Alert.alert(`Упс: ${err.message}`);
+      return Alert.alert("Error", "Щось пішло не так... Спробуйте знову");
     }
     setComment("");
+    Keyboard.dismiss;
   };
 
   const getAllComments = () => {

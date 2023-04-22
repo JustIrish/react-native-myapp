@@ -73,12 +73,19 @@ export default function RegistrationScreen({ navigation }) {
 
   const handleSubmit = () => {
     if (login.trim() === "" || email.trim() === "" || password.trim() === "") {
-      return Alert.alert("Заповніть всі поля");
+      return Alert.alert("Error", "Заповніть всі поля");
     }
     setIsShowKeyBoard(false);
     Keyboard.dismiss();
 
-    dispatch(register({ login, email, password, avatar }));
+    dispatch(register({ login, email, password, avatar }))
+      .unwrap()
+      .then(() => {
+        Alert.alert("Success", "Ви успішно зареєструвалися");
+      })
+      .catch(() =>
+        Alert.alert("Error", "Щось пішло не так... Введіть дані ще раз")
+      );
   };
 
   return (

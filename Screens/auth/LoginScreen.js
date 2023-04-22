@@ -55,7 +55,21 @@ export default function LoginScreen({ navigation }) {
     setIsShowKeyBoard(false);
     Keyboard.dismiss();
 
-    dispatch(logIn({ email, password }));
+    dispatch(logIn({ email, password }))
+      .unwrap()
+      .then(() => {
+        console.log("Користувач здійснив вхід");
+      })
+      .catch((err) => {
+        if (
+          err === "Firebase: Error (auth/wrong-password)." ||
+          err === "Firebase: Error (auth/user-not-found)."
+        ) {
+          Alert.alert("Error", "Невірний логін або пароль");
+        } else {
+          Alert.alert("Error", "Щось пішло не так... Введіть дані ще раз");
+        }
+      });
 
     setIsLoading(false);
   };
