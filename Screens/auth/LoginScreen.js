@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }) {
     dispatch(logIn({ email, password }))
       .unwrap()
       .then(() => {
-        console.log("Користувач здійснив вхід");
+        console.log("User is signed in");
       })
       .catch((err) => {
         if (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Image, Text, StyleSheet, Pressable } from "react-native";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
@@ -13,9 +13,11 @@ const PostItem = ({
   avatar,
   location,
   locationName,
-  likes = "",
+  likes = 0,
   comment = "",
 }) => {
+  const [isLiked, setIsLiked] = useState(false);
+
   const updateLikes = async (likes, id) => {
     try {
       const likeRef = doc(db, "posts", id);
@@ -28,7 +30,13 @@ const PostItem = ({
   };
 
   const handlerLikePress = async () => {
-    updateLikes(likes + 1, id);
+    if (!isLiked) {
+      setIsLiked(true);
+      updateLikes(likes + 1, id);
+    } else {
+      setIsLiked(false);
+      updateLikes(likes - 1, id);
+    }
   };
 
   return (
@@ -59,10 +67,10 @@ const PostItem = ({
             <EvilIcons
               name="like"
               size={26}
-              color={likes > 0 ? "#FF6C00" : "#BDBDBD"}
+              color={isLiked ? "#FF6C00" : "#BDBDBD"}
             />
           </Pressable>
-          <Text style={styles.descText}>{likes}</Text>
+          <Text style={styles.descText}>{likes > 0 && likes}</Text>
         </View>
 
         <View>
